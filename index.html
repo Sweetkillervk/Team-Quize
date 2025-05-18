@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Black Buttons</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #121212;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 50px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .modern-button {
+      background: linear-gradient(145deg, #000000, #222222);
+      border: none;
+      border-radius: 12px;
+      box-shadow: 
+        4px 4px 8px #0b0b0b,
+        -4px -4px 8px #2c2c2c,
+        inset 0 0 8px #111111;
+      color: #fff;
+      padding: 18px 45px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 
+        box-shadow 0.3s ease,
+        transform 0.2s ease;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+
+    .modern-button:hover {
+      box-shadow: 
+        2px 2px 6px #0b0b0b,
+        -2px -2px 6px #2c2c2c,
+        inset 0 0 12px #555555;
+      transform: translateY(-4px) translateZ(20px);
+      color: #00ffff;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 40px;
+      }
+
+      .modern-button {
+        padding: 14px 30px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome</h1>
+    <div class="button-group">
+      <a href="quize.html" class="modern-button">Start Quize</a>
+      <a href="questionUpload.html" class="modern-button">Load Question</a>
+      <a href="" class="modern-button">Create Question</a>
+    </div>
+  </div>
+</body>
+<script>
+    // Right Click Disable
+document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+}, false);
+
+// Shortcut Keys Disable
+document.onkeydown = function (e) {
+    // F12
+    if (e.keyCode == 123) return false;
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 73) return false;
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 74) return false;
+    // Ctrl+U
+    if (e.ctrlKey && e.keyCode == 85) return false;
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 67) return false;
+    // Ctrl+S
+    if (e.ctrlKey && e.keyCode == 83) return false;
+    // Ctrl+A
+    if (e.ctrlKey && e.keyCode == 65) return false;
+    // Ctrl+C
+    if (e.ctrlKey && e.keyCode == 67) return false;
+};
+
+// Prevent drag select
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+
+
+
+
+	// Disable text selection
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+});
+
+// Disable right-click
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// Disable drag events (to prevent dragging content)
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+
+document.addEventListener('copy', function(e) {
+    e.preventDefault(); // Default copy ko roke
+    const fakeText = "Copying is not allowed. Visit our site directly: https://yourwebsite.com";
+    if (e.clipboardData) {
+        e.clipboardData.setData('text/plain', fakeText);
+    } else if (window.clipboardData) {
+        window.clipboardData.setData('Text', fakeText);
+    }
+    alert("Copying is disabled on this site!");
+});
+</script>
+</html>

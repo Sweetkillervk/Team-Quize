@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1f2937;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="p-6">
+
+    <header class="text-center py-6 bg-gray-800 shadow-lg">
+        <h1 class="text-3xl font-bold">Quiz Question Management</h1>
+    </header>
+
+    <!-- Section to Review and Edit Questions -->
+    <div id="review-section" class="bg-gray-800 p-6 rounded-lg shadow-lg mt-6">
+        <h2 class="text-2xl font-semibold mb-4">Review & Edit Questions</h2>
+        <div id="saved-questions" class="space-y-4">
+            <!-- Saved Questions Will Be Loaded Here -->
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="text-center mt-4">
+        <button id="save-btn" class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+            Save Questions to LocalStorage
+        </button>
+    </div>
+
+    <!-- Button to Load Saved Questions -->
+    <div class="text-center mt-4">
+        <button id="load-btn" class="px-6 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+            Load Saved Questions
+        </button>
+    </div>
+
+    <!-- Upload JSON File Section -->
+    <div class="text-center mt-6">
+        <input type="file" id="upload-json" class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+    </div>
+
+    <script>
+        // Object to hold the questions for both teams
+        let quizData = {
+            team1: [],
+            team2: []
+        };
+
+        // Function to load saved questions from LocalStorage
+        function loadSavedQuestions() {
+            let storedData = localStorage.getItem("quizData");
+            if (storedData) {
+                quizData = JSON.parse(storedData);
+                alert("Questions loaded successfully!");
+                displaySavedQuestions();
+            } else {
+                alert("No saved questions found.");
+            }
+        }
+
+        // Function to display saved questions
+        function displaySavedQuestions() {
+            let savedQuestionsDiv = document.getElementById("saved-questions");
+            savedQuestionsDiv.innerHTML = "";
+
+            Object.keys(quizData).forEach(team => {
+                quizData[team].forEach((q, index) => {
+                    let questionElement = document.createElement("div");
+                    questionElement.className = "bg-gray-700 p-4 rounded";
+
+                    questionElement.innerHTML = `
+                        <h3 class="text-xl font-semibold">${team.toUpperCase()} - Question ${index + 1}</h3>
+                        <input type="text" class="w-full p-2 bg-gray-600 text-white rounded mb-2" value="${q.question}" id="${team}-question-${index}">
+                        
+                        <div class="space-y-2">
+                            <input type="text" class="w-full p-2 bg-gray-600 text-white rounded" value="${q.options[0]}" id="${team}-option1-${index}">
+                            <input type="text" class="w-full p-2 bg-gray-600 text-white rounded" value="${q.options[1]}" id="${team}-option2-${index}">
+                            <input type="text" class="w-full p-2 bg-gray-600 text-white rounded" value="${q.options[2]}" id="${team}-option3-${index}">
+                            <input type="text" class="w-full p-2 bg-gray-600 text-white rounded" value="${q.options[3]}" id="${team}-option4-${index}">
+                        </div>
+                        
+                        <input type="text" class="w-full p-2 bg-gray-600 text-white rounded mt-2" value="${q.answer}" id="${team}-answer-${index}">
+
+                        <button onclick="updateSavedQuestion('${team}', ${index})" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Update
+                        </button>
+                        <button onclick="deleteSavedQuestion('${team}', ${index})" class="mt-3 ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                            Delete
+                        </button>
+                    `;
+
+                    savedQuestionsDiv.appendChild(questionElement);
+                });
+            });
+        }
+
+        // Function to update an edited question
+        function updateSavedQuestion(team, index) {
+            let newQuestion = document.getElementById(`${team}-question-${index}`).value;
+            let newOptions = [
+                document.getElementById(`${team}-option1-${index}`).value,
+                document.getElementById(`${team}-option2-${index}`).value,
+                document.getElementById(`${team}-option3-${index}`).value,
+                document.getElementById(`${team}-option4-${index}`).value
+            ];
+            let newAnswer = document.getElementById(`${team}-answer-${index}`).value;
+
+            if (newQuestion.trim() === "" || newOptions.some(opt => opt.trim() === "") || newAnswer.trim() === "") {
+                alert("Please enter valid values for the question and all options.");
+                return;
+            }
+
+            quizData[team][index] = { question: newQuestion, options: newOptions, answer: newAnswer };
+            saveToLocalStorage();
+            alert("Question updated successfully!");
+        }
+
+        // Function to delete a saved question
+        function deleteSavedQuestion(team, index) {
+            if (confirm("Are you sure you want to delete this question?")) {
+                quizData[team].splice(index, 1);
+                saveToLocalStorage();
+                displaySavedQuestions();
+                alert("Question deleted successfully!");
+            }
+        }
+
+        // Function to save all questions to LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem("quizData", JSON.stringify(quizData));
+        }
+
+        // Event listener to load saved questions
+        document.getElementById("load-btn").addEventListener("click", loadSavedQuestions);
+
+        // Event listener to save questions to LocalStorage
+        document.getElementById("save-btn").addEventListener("click", saveToLocalStorage);
+
+        // Function to handle JSON file upload
+        document.getElementById("upload-json").addEventListener("change", handleFileUpload);
+
+        // Function to parse and add questions from the JSON file
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === "application/json") {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.team1 && Array.isArray(data.team1) && data.team2 && Array.isArray(data.team2)) {
+                            quizData = data;
+                            saveToLocalStorage();
+                            displaySavedQuestions();
+                            alert("Questions from the JSON file loaded successfully!");
+                        } else {
+                            alert("Invalid JSON format.");
+                        }
+                    } catch (error) {
+                        alert("Error parsing JSON file.");
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert("Please upload a valid JSON file.");
+            }
+        }
+
+        // Preload saved questions if any
+        loadSavedQuestions();
+    </script>
+    <script>
+        // Right Click Disable
+document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+}, false);
+
+// Shortcut Keys Disable
+document.onkeydown = function (e) {
+    // F12
+    if (e.keyCode == 123) return false;
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 73) return false;
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 74) return false;
+    // Ctrl+U
+    if (e.ctrlKey && e.keyCode == 85) return false;
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 67) return false;
+    // Ctrl+S
+    if (e.ctrlKey && e.keyCode == 83) return false;
+    // Ctrl+A
+    if (e.ctrlKey && e.keyCode == 65) return false;
+    // Ctrl+C
+    if (e.ctrlKey && e.keyCode == 67) return false;
+};
+
+// Prevent drag select
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+
+
+
+
+	// Disable text selection
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+});
+
+// Disable right-click
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// Disable drag events (to prevent dragging content)
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+
+document.addEventListener('copy', function(e) {
+    e.preventDefault(); // Default copy ko roke
+    const fakeText = "Copying is not allowed. Visit our site directly: https://yourwebsite.com";
+    if (e.clipboardData) {
+        e.clipboardData.setData('text/plain', fakeText);
+    } else if (window.clipboardData) {
+        window.clipboardData.setData('Text', fakeText);
+    }
+    alert("Copying is disabled on this site!");
+});
+    </script>
+
+</body>
+</html>
